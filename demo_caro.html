@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #content{
+            width: 350px;
+            height: 450px;
+            background-color:#e0dede;
+            padding: 50px;
+        }
+        h1{
+            text-align: center;
+        }
+        .div1{
+            display: flex;
+            justify-content: space-between;
+        }
+        table {
+            border: 1px solid black;
+        }
+
+        td {
+            width: 30px;
+            height: 30px;
+            border: 1px solid black;
+            text-align: center;
+        }
+        td:hover{
+            background-color: whitesmoke;
+        }
+
+    </style>
+</head>
+<body>
+<div id="content">
+    <h1>Game Caro</h1>
+    <div class="div1">
+        <button id="btn-play" onclick="start()">Bắt đầu</button>
+        <button id="timer">00:00:00</button>
+        <button id="btn-player">Người chơi</button>
+    </div>
+    <div id="result"></div>
+</div>
+
+<script>
+    let array = new Array(20);
+    let isPlayer1 = true;
+    let cellsWin =[];
+    let timer;
+
+    function start() {
+        cellsWin=[];
+        for (let i = 0; i < array.length; i++) {
+            array[i] = new Array(20);
+            for (let j = 0; j < array[i].length; j++) {
+                array[i][j] = ""
+            }
+        }
+        document.getElementById("btn-play").innerText = "Chơi lại";
+        display();
+
+        hours =0;
+        minutes=0;
+        seconds=0;
+        clearInterval(timer)
+        timer= setInterval(function () {
+            updateTimer('timer')
+        },1000)
+    }
+
+    function display() {
+        let tableString = `<table id="tb">`;
+        for (let i = 0; i < 10; i++) {
+            tableString += ` <tr>`;
+            for (let j = 0; j < 10; j++) {
+                if (cellsWin.includes(`${i}-${j}`)){
+                    if (array[i][j] == "X") {
+                        tableString += `<td style="color: blue;background-color: lightgreen" onclick="play(${i},${j})">${array[i][j]}</td>`;
+                    } else if (array[i][j] == "O")
+                        tableString += `<td style="color: red;background-color: lightgreen" onclick="play(${i},${j})">${array[i][j]}</td>`;
+                    else {
+                        tableString += `<td onclick="play(${i},${j})">${array[i][j]}</td>`;
+                    }
+                }else {
+                    if (array[i][j] == "X") {
+                        tableString += `<td style="color: blue" onclick="play(${i},${j})">${array[i][j]}</td>`;
+                    } else if (array[i][j] == "O")
+                        tableString += `<td style="color: red" onclick="play(${i},${j})">${array[i][j]}</td>`;
+                    else {
+                        tableString += `<td onclick="play(${i},${j})">${array[i][j]}</td>`;
+                    }
+                }
+
+            }
+        }
+        tableString += `</tr>`;
+        tableString += `</table>`;
+        document.getElementById("result").innerHTML = tableString;
+        if (isPlayer1){
+            document.getElementById("btn-player").innerText ="Đến lượt X";
+        }else {
+            document.getElementById("btn-player").innerText ="Đến lượt O";
+        }
+    }
+
+    function play(i, j) {
+        if (cellIsEmpty(i, j)) {
+            if (isPlayer1) {
+                array[i][j] = "X";
+                isPlayer1 = !isPlayer1;
+                if (checkWin("X")){
+                    alert("X thắng!")
+                }
+            } else {
+                array[i][j] = "O";
+                isPlayer1 = !isPlayer1;
+                if (checkWin("O")){
+                    alert("O thắng!")
+                }
+            }
+        } else {
+            alert("Ô này đã được chơi. Chọn ô khác!!!")
+        }
+        display();
+
+    }
+
+    function cellIsEmpty(i, j) {
+        return array[i][j] === "";
+    }
+
+    function checkWin(value) {
+        for (let i = 0; i <array.length ; i++) {
+            for (let j = 0; j <array[i].length ; j++) {
+                let checkBN = array[i][j]===value
+                             && array[i+1][j]==value
+                             && array[i+2][j]==value
+                             && array[i+3][j]==value
+                let checkTD = array[i][j]===value
+                    && array[i][j+1]==value
+                    && array[i][j+2]==value
+                    && array[i][j+3]==value
+                let checkTBDN = array[i][j]===value
+                    && array[i+1][j+1]==value
+                    && array[i+2][j+2]==value
+                    && array[i+3][j+3]==value
+                let checkDBTN = array[i][j]===value
+                    && array[i+1][j-1]==value
+                    && array[i+2][j-2]==value
+                    && array[i+3][j-3]==value
+                // alert(array[i+3][j-3])
+                if (checkBN){
+                    cellsWin.push(`${i}-${j}`)
+                    cellsWin.push(`${i+1}-${j}`)
+                    cellsWin.push(`${i+2}-${j}`)
+                    cellsWin.push(`${i+3}-${j}`)
+                    return true;
+                }
+                if (checkTD){
+                    cellsWin.push(`${i}-${j}`)
+                    cellsWin.push(`${i}-${j+1}`)
+                    cellsWin.push(`${i}-${j+2}`)
+                    cellsWin.push(`${i}-${j+3}`)
+                    return true;
+                }
+                if (checkDBTN){
+                    cellsWin.push(`${i}-${j}`)
+                    cellsWin.push(`${i+1}-${j-1}`)
+                    cellsWin.push(`${i+2}-${j-2}`)
+                    cellsWin.push(`${i+3}-${j-3}`)
+                    return true;
+                }
+                if (checkTBDN){
+                    cellsWin.push(`${i}-${j}`)
+                    cellsWin.push(`${i+1}-${j+1}`)
+                    cellsWin.push(`${i+2}-${j+2}`)
+                    cellsWin.push(`${i+3}-${j+3}`)
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+    function updateTimer(idTag) {
+        const timerElement = document.getElementById(idTag);
+        seconds++;
+        if (seconds >= 60) {
+            seconds = 0;
+            minutes++;
+            if (minutes >= 60) {
+                minutes = 0;
+                hours++;
+            }
+        }
+        // Hiển thị đồng hồ
+        let timeString = formatTime(hours) + ":" + formatTime(minutes) + ":" + formatTime(seconds);
+        timerElement.innerHTML = timeString;
+        // Hàm định dạng thời gian thành chuỗi có 2 chữ số
+        function formatTime(time) {
+            return time < 10 ? "0" + time : time;
+        }
+    }
+</script>
+</body>
+</html>
