@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border: 1px solid red;"></canvas>
+<h3 id="score">Score: 0</h3>
+<button onclick="againPlay()">Again</button>
+<script>
+    let canvas = document.getElementById("canvas");
+    let context = canvas.getContext('2d');
+    canvas.height = 500;
+    canvas.width = 1000;
+    let building = new Image();
+    building.src = 'building.jpg';
+    let bird = new Image();
+    bird.src = 'bird.png';
+    let upperBar = new Image();
+    upperBar.src = 'upperBar.png';
+    upperBar.width = 50;
+    upperBar.height = 200
+
+    let lowerBar = new Image();
+    lowerBar.src = 'lowerBar.png';
+    lowerBar.width = 50;
+    lowerBar.height = 200
+
+    let birdObj = {
+        x: canvas.width / 5,
+        y: canvas.height / 3
+    }
+    let bars = [];
+    bars.push({
+        x: canvas.width - 50,
+        y: 0
+    })
+    let between = 200;
+    let isPause = false;
+    let score = 0;
+
+    function run() {
+        context.drawImage(building, 0, 0, 1000, 500);
+        context.drawImage(bird, birdObj.x, birdObj.y, 40, 40);
+
+        for (let i = 0; i < bars.length; i++) {
+            context.drawImage(upperBar, bars[i].x, bars[i].y);
+            context.drawImage(lowerBar, bars[i].x, bars[i].y + upperBar.height + between);
+            if (score<5){
+                bars[i].x -=5;
+            }else {
+                bars[i].x -=10;
+            }
+            // bars[i].x -= step;
+            if (bars[i].x === canvas.width / 2) {
+                bars.push({
+                    x: canvas.width - 50,
+                    y: -Math.round(Math.random() * upperBar.height)
+                })
+            }
+            if (bars[i] <= 0) {
+                bars[i].splice(0, 1);
+            }
+            if (bars[i].x == birdObj.x) {
+                score++;
+                document.getElementById("score").innerText = "Score: " + score;
+            }
+            // check game over;
+            if (birdObj.x + bird.width > bars[i].x && birdObj.x < bars[i].x + upperBar.width
+                && (birdObj.y < bars[i].y + upperBar.height
+                    || birdObj.y > bars[i].y + upperBar.height + between)) {
+                alert("game over");
+                return;
+            }
+        }
+        birdObj.y += 2;
+        if (!isPause) {
+            requestAnimationFrame(run);
+        }
+
+
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key == " ") {
+            birdObj.y -= 70;
+        }
+    })
+    document.addEventListener('keydown', function (event) {
+        if (!isPause) {
+            if (event.key == "Enter") {
+                isPause = true;
+            }
+        } else {
+            if (event.key == "Enter") {
+                isPause = false;
+                run();
+            }
+        }
+
+    })
+    function againPlay() {
+       location.reload();
+    }
+    run();
+</script>
+</body>
+</html>
